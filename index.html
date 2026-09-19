@@ -2544,10 +2544,17 @@
       initAudio();
       
       if (musicAudio) {
-        musicEnabled = true;
-        musicAudio.play().catch(() => {});
-        $("#musicBtn").innerHTML = '<i data-lucide="pause"></i>';
-        refreshIcons();
+        let playPromise = musicAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            musicEnabled = true;
+            $("#musicBtn").innerHTML = '<i data-lucide="pause"></i>';
+            refreshIcons();
+          }).catch(error => {
+            console.log("Audio block/error:", error);
+            showToast("اضغطي على أيقونة الموسيقى فوق لتشغيل الأغنية 🎵");
+          });
+        }
       }
 
       setTimeout(() => {
@@ -4188,8 +4195,12 @@
 
         musicAudio.loop = true;
         musicAudio.volume = 0.22;
+        musicAudio.preload = "auto";
       }
     }
+
+    // Call initAudio immediately to preload
+    initAudio();
 
     function playTone(
       frequency = 440,
@@ -4290,23 +4301,25 @@
 
         if (!musicAudio) return;
 
-        musicEnabled =
-          !musicEnabled;
-
         if (musicEnabled) {
 
-          musicAudio.play()
-            .catch(() => {});
+          musicAudio.pause();
+          musicEnabled = false;
+          $("#musicBtn").innerHTML = '<i data-lucide="music"></i>';
 
         } else {
 
-          musicAudio.pause();
+          let playPromise = musicAudio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              musicEnabled = true;
+              $("#musicBtn").innerHTML = '<i data-lucide="pause"></i>';
+              refreshIcons();
+            }).catch(() => {
+              showToast("تأكد من وجود الأغنية بجوار ملف الموقع");
+            });
+          }
         }
-
-        $("#musicBtn").innerHTML =
-          musicEnabled
-            ? '<i data-lucide="pause"></i>'
-            : '<i data-lucide="music"></i>';
 
         refreshIcons();
       }
@@ -4329,15 +4342,23 @@
         
         if (musicEnabled && musicAudio) {
           musicAudio.pause();
+          musicEnabled = false;
           $("#musicBtn").innerHTML = '<i data-lucide="music"></i>';
+          refreshIcons();
         }
       });
 
       // لما الفيديو يقف، نرجع الموسيقى تاني لو كانت شغالة قبلها
       mainVideo.addEventListener("pause", () => {
         if (wasMusicPlayingBeforeVideo && musicAudio) {
-          musicAudio.play().catch(() => {});
-          $("#musicBtn").innerHTML = '<i data-lucide="pause"></i>';
+          let playPromise = musicAudio.play();
+          if (playPromise !== undefined) {
+             playPromise.then(() => {
+               musicEnabled = true;
+               $("#musicBtn").innerHTML = '<i data-lucide="pause"></i>';
+               refreshIcons();
+             }).catch(() => {});
+          }
         }
       });
     }
