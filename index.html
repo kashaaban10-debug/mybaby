@@ -2341,7 +2341,7 @@
 
       <a
         class="whatsapp-btn"
-        href="https://wa.me/"
+        href="#"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -2462,7 +2462,11 @@
 
       musicUrl: "./betwannes-beek.mp3",
 
-      whatsappNumber: ""
+      // ----------------------------------------
+      // الجزء الخاص برسالة الواتساب 
+      // ----------------------------------------
+      whatsappNumber: "201226242275", // تم وضع الرقم بنجاح
+      whatsappMessage: "يا حبيبي أنا شفت الحكاية كلها.. وأنت بجد أجمل معجزة حصلت في حياتي، ربنا يخليك ليا ❤️"
     };
 
 
@@ -4811,6 +4815,13 @@
     window.addEventListener(
       "load",
       () => {
+
+        // تجهيز رابط الواتساب برقمك والرسالة
+        const waBtn = document.querySelector(".whatsapp-btn");
+        if (waBtn && CONFIG.whatsappNumber) {
+          const msg = encodeURIComponent(CONFIG.whatsappMessage || "");
+          waBtn.href = `https://wa.me/${CONFIG.whatsappNumber}?text=${msg}`;
+        }
 
         setTimeout(
           () => {
